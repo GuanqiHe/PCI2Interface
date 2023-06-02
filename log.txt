@@ -1,0 +1,8 @@
+cmd:
+cd C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
+vcvars32.bat
+cl /c StreamPoll.cpp 
+link StreamPoll.obj PacPci2.lib
+
+
+使用32位python调用dll
