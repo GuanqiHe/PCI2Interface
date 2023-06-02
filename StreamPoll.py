@@ -1,5 +1,6 @@
 from PacPci2 import *
 from PACP2LV import *
+import time
 
 MAXMSGLEN = 32767
 msg = (byte*MAXMSGLEN)(*[0 for i in range(MAXMSGLEN)])
@@ -28,7 +29,7 @@ FALSE = False
 def mainFunc():
     done = 0
     key = openPCI2()
-    print(key)
+
     if key:
         print("Could not open PCI2 ({}) ... Hit a key to exit.\n".format(key))
         return 0
@@ -37,7 +38,7 @@ def mainFunc():
         if not checkChannelHardwarePresent(c_short(i)):
             break
 
-        number_of_channels = i
+        nuber_of_channels = i
 
     if number_of_channels == 0:
         print("Could not find any PCI2 channels ... Hit a key to exit.\n")
@@ -73,10 +74,9 @@ def mainFunc():
     b2Len = getRequiredSampleBufferLen(2)
 
     b1Array = (c_float*b1Len)()
-    b1 = cast(b1Array, POINTER(c_float))
-
+    b1 = pointer(b1Array)
     b2Array = (c_float*b2Len)()
-    b2 = cast(b2Array, POINTER(c_float))
+    b2 = pointer(b2Array)
 
     setStreamingBuffer(1, b1, b1Len, 1)
     setStreamingBuffer(2, b2, b1Len, 1)
@@ -85,6 +85,38 @@ def mainFunc():
 
     running  = 1
     asDone = 0
+    done = 0
+    inStreaming = False
+    
+    while not done:
+        
+        time.sleep(0)
+    
+        poll()
+        
+        if not getMessage(msg, 32767):
+            print(msg)
+            if ( msg[2] == ID_STOP):
+                done = 1
+        else:
+            print(msg)
+            done = 1
+        
+        if isStreamingStarted() and not inStreaming:
+            print("Streaming Started!")
+            inStreaming = True
+        
+        if inStreaming and isStreamingFinished():
+            print("Stop!")
+            rearmStreaming()
+            inStreaming = False
+    
+    closePCI2()
+    print("finish")
+    return 1
+    
+        
+        
 
 
 def setupPCI2(nChannels, wfXfer):
