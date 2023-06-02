@@ -28,7 +28,7 @@ FALSE = False
 def mainFunc():
     done = 0
     key = openPCI2()
-
+    print(key)
     if key:
         print("Could not open PCI2 ({}) ... Hit a key to exit.\n".format(key))
         return 0
@@ -37,7 +37,7 @@ def mainFunc():
         if not checkChannelHardwarePresent(c_short(i)):
             break
 
-        nuber_of_channels = i
+        number_of_channels = i
 
     if number_of_channels == 0:
         print("Could not find any PCI2 channels ... Hit a key to exit.\n")
@@ -73,9 +73,10 @@ def mainFunc():
     b2Len = getRequiredSampleBufferLen(2)
 
     b1Array = (c_float*b1Len)()
-    b1 = pointer(b1Array)
+    b1 = cast(b1Array, POINTER(c_float))
+
     b2Array = (c_float*b2Len)()
-    b2 = pointer(b2Array)
+    b2 = cast(b2Array, POINTER(c_float))
 
     setStreamingBuffer(1, b1, b1Len, 1)
     setStreamingBuffer(2, b2, b1Len, 1)
